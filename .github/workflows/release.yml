@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Update version in manifest.json
         run: |
@@ -23,7 +23,7 @@ jobs:
         run: zip -r coretax-bulk-download.zip . -x "*.git*" ".github/*"
       
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: coretax-bulk-download.zip
         env:
