@@ -17,7 +17,7 @@ jobs:
       - name: Update version in manifest.json
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" manifest.json
+          sed -i 's/"version": ".*"/"version": "'$VERSION'"/' manifest.json
       
       - name: Create ZIP file
         run: zip -r coretax-bulk-download.zip . -x "*.git*" ".github/*"
