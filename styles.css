@@ -1,0 +1,118 @@
+.download-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10000;
+    background-color: #1a3c5e;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 250px;
+}
+
+.download-btn, .select-all-btn, .filter-btn {
+    background-color: #2a5285;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.download-btn:hover, .select-all-btn:hover, .filter-btn:hover {
+    background-color: #3a6ba8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #28a745, #34d058);
+    width: 0;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+.filter-modal, .summary-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    backdrop-filter: blur(3px);
+}
+
+.filter-modal-content, .summary-modal-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.filter-modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #e1e4e8;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.filter-modal-content input:focus {
+    border-color: #2a5285;
+    outline: none;
+}
+
+.filter-modal-content button, .summary-modal-content button {
+    background-color: #2a5285;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-modal-content button:hover, .summary-modal-content button:hover {
+    background-color: #3a6ba8;
+    transform: translateY(-1px);
+}

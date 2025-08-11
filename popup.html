@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>coretax batch downlaod</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            width: 320px;
+            background-color: #f8fafc;
+            color: #1a3c5e;
+        }
+        
+        h3 {
+            color: #1a3c5e;
+            margin: 0 0 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .settings {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+        }
+        
+        label {
+            font-size: 14px;
+            color: #4a5568;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1a3c5e;
+            box-shadow: 0 0 0 2px rgba(26, 60, 94, 0.1);
+        }
+        
+        button {
+            background-color: #1a3c5e;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+        
+        button:hover {
+            background-color: #15324b;
+            transform: translateY(-1px);
+        }
+        
+        .history {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .history p {
+            font-size: 13px;
+            color: #4a5568;
+            margin: 5px 0;
+        }
+        
+        .warning {
+            font-size: 12px;
+            color: #e63946;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff5f5;
+            border-radius: 6px;
+            border-left: 3px solid #e63946;
+        }
+    </style>
+</head>
+<body>
+    <h3>coretax batch downlaod <span><a href="https://github.com/thunderkex/" style="font-size: 14px; text-decoration: none; color: #4a5568;">by Thunderkex</a></span></h3>
+    <div class="settings">
+        <label for="parallelDownloads">Jumlah Unduhan Paralel:</label>
+        <select id="parallelDownloads">
+            <option value="1">1 (Paling Aman)</option>
+            <option value="2">2</option>
+            <option value="3" selected>3 (Disarankan)</option>
+            <option value="4">4</option>
+            <option value="5">5 (Paling Cepat)</option>
+        </select>
+        
+        <label for="downloadDelay">Penundaan (ms):</label>
+        <input type="number" id="downloadDelay" value="1000" min="500" max="5000" step="100">
+        <button id="saveSettingsBtn">Simpan Pengaturan</button>
+    </div>
+    
+    <div class="history">
+        <p><strong>Riwayat Unduhan:</strong></p>
+        <div id="historyList"></div>
+        <button id="clearHistoryBtn">Hapus Riwayat</button>
+    </div>
+    
+    <p class="warning">⚠️ Peringatan: Otomatisasi ini mungkin melanggar kebijakan Coretax. Gunakan dengan risiko Anda sendiri.</p>
+    <script src="popup.js"></script>
+</body>
+</html>
