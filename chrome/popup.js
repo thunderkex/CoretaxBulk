@@ -31,6 +31,31 @@ function setupEventListeners() {
     document.getElementById('downloadDelay').addEventListener('change', validateInput);
 }
 
+function updateUI() {
+    document.getElementById('parallelDownloads').value = state.settings.parallelDownloads;
+    document.getElementById('downloadDelay').value = state.settings.downloadDelay;
+    loadHistory();
+}
+
+function validateInput(event) {
+    const input = event.target;
+    const value = parseInt(input.value);
+    
+    if (input.id === 'parallelDownloads') {
+        if (value < 1 || value > 10) {
+            input.setCustomValidity('Value must be between 1 and 10');
+        } else {
+            input.setCustomValidity('');
+        }
+    } else if (input.id === 'downloadDelay') {
+        if (value < 100 || value > 10000) {
+            input.setCustomValidity('Value must be between 100 and 10000 ms');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+}
+
 function saveSettings() {
     const parallelDownloads = parseInt(document.getElementById('parallelDownloads').value);
     const downloadDelay = parseInt(document.getElementById('downloadDelay').value);

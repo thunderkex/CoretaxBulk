@@ -7,6 +7,10 @@ class SimpleDocDownloader {
         this.documentCache = new Map();
         this.retryAttempts = 3;
         this.filterDebounceTimer = null;
+        this.downloadStats = { total: 0, completed: 0, failed: 0 };
+        this.isMinimized = false;
+        this.setupKeyboardShortcuts();
+        this.documentTypes = new Set();
     }
 
     async loadSettings() {
@@ -59,24 +63,51 @@ class SimpleDocDownloader {
     showFilterModal() {
         const modal = document.createElement('div');
         modal.className = 'filter-modal';
+        
+        // Detect document types for filter options
+        this.detectDocumentTypes();
+        const typeOptions = Array.from(this.documentTypes).map(type => 
+            `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`
+        ).join('');
+        
         modal.innerHTML = `
             <div class="filter-modal-content">
                 <h3>Filter Documents</h3>
                 <input type="text" id="filterText" placeholder="Enter search text...">
-                <button onclick="document.querySelector('.filter-modal').remove()">Close</button>
-                <button onclick="document.dispatchEvent(new CustomEvent('applyFilter'))">Apply</button>
+                <select id="filterType">
+                    <option value="">All Types</option>
+                    ${typeOptions}
+                </select>
+                <div class="modal-buttons">
+                    <button onclick="document.querySelector('.filter-modal').remove()">Close</button>
+                    <button onclick="document.dispatchEvent(new CustomEvent('applyFilter'))">Apply</button>
+                    <button onclick="document.dispatchEvent(new CustomEvent('clearFilter'))">Clear</button>
+                </div>
             </div>
         `;
         document.body.appendChild(modal);
 
-        document.addEventListener('applyFilter', () => {
+        // Add event listeners
+        const applyHandler = () => {
             const filterText = document.getElementById('filterText').value.toLowerCase();
-            this.filterDocuments(filterText);
+            const filterType = document.getElementById('filterType').value;
+            this.filterDocuments(filterText, filterType);
             modal.remove();
-        });
+        };
+
+        const clearHandler = () => {
+            this.clearFilters();
+            modal.remove();
+        };
+
+        document.addEventListener('applyFilter', applyHandler, { once: true });
+        document.addEventListener('clearFilter', clearHandler, { once: true });
+
+        // Auto-focus the input
+        setTimeout(() => document.getElementById('filterText').focus(), 100);
     }
 
-    filterDocuments(text) {
+    filterDocuments(text, type = '') {
         // Clear existing timer
         clearTimeout(this.filterDebounceTimer);
         
@@ -87,10 +118,17 @@ class SimpleDocDownloader {
             
             rows.forEach(row => {
                 const content = row.textContent.toLowerCase();
-                const matches = searchTerms.every(term => content.includes(term));
-                row.style.display = matches ? '' : 'none';
+                const textMatches = !text || searchTerms.every(term => content.includes(term));
+                const typeMatches = !type || content.includes(type);
+                
+                row.style.display = (textMatches && typeMatches) ? '' : 'none';
             });
         }, 300);
+    }
+
+    clearFilters() {
+        const rows = document.querySelectorAll('table.p-datatable-table tbody tr');
+        rows.forEach(row => row.style.display = '');
     }
 
     toggleSelectAll() {
@@ -246,6 +284,56 @@ class SimpleDocDownloader {
             return false;
         }
         return true;
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'd':
+                        e.preventDefault();
+                        this.startDownload();
+                        break;
+                    case 'a':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.toggleSelectAll();
+                        }
+                        break;
+                    case 'f':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.showFilterModal();
+                        }
+                        break;
+                    case 'm':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.toggleMinimize();
+                        }
+                        break;
+                }
+            }
+        });
+    }
+
+    detectDocumentTypes() {
+        const rows = document.querySelectorAll('table.p-datatable-table tbody tr');
+        this.documentTypes.clear();
+        
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            cells.forEach(cell => {
+                const text = cell.textContent.toLowerCase();
+                if (text.includes('invoice') || text.includes('faktur')) {
+                    this.documentTypes.add('invoice');
+                } else if (text.includes('receipt') || text.includes('kwitansi')) {
+                    this.documentTypes.add('receipt');
+                } else if (text.includes('report') || text.includes('laporan')) {
+                    this.documentTypes.add('report');
+                }
+            });
+        });
     }
 }
 
