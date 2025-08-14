@@ -14,6 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       
+      - name: Generate version tag
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            timestamp=$(date +%Y%m%d-%H%M%S)
+            short_sha=${GITHUB_SHA:0:7}
+            echo "tag=v${timestamp}-${short_sha}" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Create Chrome extension package
         run: |
           cd chrome
@@ -34,7 +45,7 @@ jobs:
             coretax-bulk-chrome.zip
             coretax-bulk-firefox.zip
             coretax-bulk-source.zip
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
