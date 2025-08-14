@@ -1,17 +1,35 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Muat pengaturan
-    chrome.storage.local.get(['parallelDownloads', 'downloadDelay'], (result) => {
-        document.getElementById('parallelDownloads').value = result.parallelDownloads || 3;
-        document.getElementById('downloadDelay').value = result.downloadDelay || 1000;
-    });
+const state = {
+    settings: {
+        parallelDownloads: 5,
+        downloadDelay: 650
+    },
+    history: []
+};
 
-    // Add event listeners
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        await initializeState();
+        setupEventListeners();
+        updateUI();
+    } catch (error) {
+        console.error('Initialization error:', error);
+        showError('Failed to initialize. Please try again.');
+    }
+});
+
+async function initializeState() {
+    const result = await chrome.storage.local.get(['parallelDownloads', 'downloadDelay', 'downloadHistory']);
+    state.settings.parallelDownloads = result.parallelDownloads || 5;
+    state.settings.downloadDelay = result.downloadDelay || 650;
+    state.history = result.downloadHistory || [];
+}
+
+function setupEventListeners() {
     document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
     document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
-
-    // Muat riwayat
-    loadHistory();
-});
+    document.getElementById('parallelDownloads').addEventListener('change', validateInput);
+    document.getElementById('downloadDelay').addEventListener('change', validateInput);
+}
 
 function saveSettings() {
     const parallelDownloads = parseInt(document.getElementById('parallelDownloads').value);
