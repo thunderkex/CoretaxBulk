@@ -1,7 +1,10 @@
 name: Create Release
 
 on:
+  workflow_dispatch:
   push:
+    branches:
+      - '**'
     tags:
       - 'v*'
 
@@ -9,19 +12,40 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
       
-      - name: Update version in manifest.json
+      - name: Generate version tag
+        id: version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" manifest.json
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          else
+            timestamp=$(date +%Y%m%d-%H%M%S)
+            short_sha=${GITHUB_SHA:0:7}
+            echo "tag=v${timestamp}-${short_sha}" >> $GITHUB_OUTPUT
+          fi
       
-      - name: Create ZIP file
-        run: zip -r coretax-bulk-download.zip . -x "*.git*" ".github/*"
+      - name: Create Chrome extension package
+        run: |
+          cd chrome
+          zip -r ../coretax-bulk-chrome.zip . -x "*.git*"
+      
+      - name: Create Firefox extension package
+        run: |
+          cd firefox
+          zip -r ../coretax-bulk-firefox.zip . -x "*.git*"
+      
+      - name: Create source code package
+        run: zip -r coretax-bulk-source.zip . -x "*.git*" ".github/*"
       
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: coretax-bulk-download.zip
+          files: |
+            coretax-bulk-chrome.zip
+            coretax-bulk-firefox.zip
+            coretax-bulk-source.zip
+          tag_name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
