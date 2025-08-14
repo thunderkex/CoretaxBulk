@@ -44,7 +44,7 @@
 
 ### Quick Start
 ```bash
-git clone <repository-url>
+git clone https://github.com/thunderkex/CoretaxBulk
 cd CoretaxBulk
 ```
 
@@ -89,8 +89,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - 🐛 **Issues**: [Report bugs](https://github.com/thunderkex/CoretaxBulk/issues/new/choose)
 - 💭 **Discussions**: [Ask questions](https://github.com/thunderkex/CoretaxBulk/discussions)  
 - � **Wiki**: [Read docs](https://github.com/thunderkex/CoretaxBulk/wiki)
-- � **Email**: support@coretaxbulk.com
-
 ---
 
 <div align="center">
