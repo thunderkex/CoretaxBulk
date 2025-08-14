@@ -33,19 +33,6 @@
   </a>
 </p>
 
-<p align="center">
-  A powerful browser extension for bulk operations on Coretax platform<br>
-  Compatible with Chrome and Firefox browsers
-</p>
-
-</div>
-
-## 📥 Quick Start
-
-<div align="center">
-  
-### 🎉 Ready to boost your productivity? Get started in seconds!
-
 <table>
 <tr>
 <td align="center">
@@ -54,26 +41,6 @@
 </a>
 <br><em>Get the latest version</em>
 </td>
-<td align="center">
-<a href="https://github.com/thunderkex/CoretaxBulk">
-<img src="https://img.shields.io/badge/⭐%20Star%20Repo-FFD700?style=for-the-badge&logo=star&logoColor=black" alt="Star Repository" width="250">
-</a>
-<br><em>Show your support</em>
-</td>
-</tr>
-<tr>
-<td align="center">
-<a href="https://github.com/thunderkex/CoretaxBulk/issues">
-<img src="https://img.shields.io/badge/🐛%20Report%20Bug-FF6B6B?style=for-the-badge&logo=bug&logoColor=white" alt="Report Bug" width="250">
-</a>
-<br><em>Found an issue?</em>
-</td>
-<td align="center">
-<a href="https://github.com/thunderkex/CoretaxBulk/discussions">
-<img src="https://img.shields.io/badge/💬%20Discussions-4ECDC4?style=for-the-badge&logo=github&logoColor=white" alt="Discussions" width="250">
-</a>
-<br><em>Join the community</em>
-</td>
 </tr>
 </table>
 
@@ -81,24 +48,37 @@
 
 ---
 
-## ✨ Features
+## ✨ Features & Capabilities
 
 <div align="center">
 
+### 🔥 What makes CoretaxBulk special?
+
 | 🚀 **Bulk Operations** | 🌐 **Cross-Browser** | 🎨 **User-Friendly** | ⚡ **Fast & Reliable** |
 |:---:|:---:|:---:|:---:|
-| Perform multiple operations at once | Works on Chrome & Firefox | Intuitive popup interface | Optimized performance |
+| Handle multiple tasks simultaneously | Chrome & Firefox support | Intuitive popup interface | Optimized performance |
 
 </div>
 
-### 🔥 What makes CoretaxBulk special?
+### Core Features
 
-- ✅ **Bulk Operations** - Handle multiple Coretax tasks simultaneously
-- ✅ **Cross-browser Support** - Chrome and Firefox compatibility
-- ✅ **Beautiful Interface** - Clean, modern popup design
-- ✅ **Custom Styling** - Enhanced visual experience
+- ✅ **Bulk Operations** - Perform multiple Coretax tasks at once
+- ✅ **Cross-browser Compatibility** - Seamless Chrome and Firefox support
+- ✅ **Modern Interface** - Clean, responsive popup design
+- ✅ **Custom Styling** - Enhanced visual experience with custom CSS
 - ✅ **Content Modification** - Advanced page interaction capabilities
-- ✅ **Regular Updates** - Continuously improved and maintained
+- ✅ **Active Maintenance** - Continuously improved and updated
+
+### Browser Compatibility
+
+<div align="center">
+
+| Browser | Minimum Version | Status |
+|:---:|:---:|:---:|
+| 🟦 **Chrome** | Version 88+ | ✅ Fully Supported |
+| 🟧 **Firefox** | Version 78+ | ✅ Fully Supported |
+
+</div>
 
 ## 🚀 Installation
 
@@ -162,7 +142,9 @@ CoretaxBulk/
 
 ---
 
-## 🛠️ Development
+---
+
+## 🛠️ Development & Contributing
 
 <div align="center">
 
@@ -196,9 +178,25 @@ CoretaxBulk/
 - The extensions will automatically reload when you make changes (in developer mode)
 - Test thoroughly on both browsers before creating releases
 
+### Contributing Guidelines
+
+<div align="center">
+
+<a href="https://github.com/thunderkex/CoretaxBulk/contributors">
+<img src="https://img.shields.io/badge/View%20Contributors-FF6B6B?style=for-the-badge&logo=github&logoColor=white" alt="View Contributors" width="200">
+</a>
+
+</div>
+
+1. 🍴 Fork the repository
+2. 🌿 Create a feature branch
+3. ✨ Make your changes
+4. 🧪 Test on both Chrome and Firefox
+5. 📤 Submit a pull request
+
 ---
 
-## 🎯 Releases
+## 🎯 Releases & Deployment
 
 <div align="center">
 
@@ -225,39 +223,6 @@ To create a new release:
    ```
 
 2. The GitHub Actions workflow will automatically build and create the release
-
----
-
-## 🌐 Browser Compatibility
-
-<div align="center">
-
-| Browser | Minimum Version | Status |
-|:---:|:---:|:---:|
-| 🟦 **Chrome** | Version 88+ | ✅ Fully Supported |
-| 🟧 **Firefox** | Version 78+ | ✅ Fully Supported |
-
-</div>
-
----
-
-## 🤝 Contributing
-
-<div align="center">
-
-### Join our community of contributors! 🌟
-
-<a href="https://github.com/thunderkex/CoretaxBulk/contributors">
-<img src="https://img.shields.io/badge/View%20Contributors-FF6B6B?style=for-the-badge&logo=github&logoColor=white" alt="View Contributors" width="200">
-</a>
-
-</div>
-
-1. 🍴 Fork the repository
-2. 🌿 Create a feature branch
-3. ✨ Make your changes
-4. 🧪 Test on both Chrome and Firefox
-5. 📤 Submit a pull request
 
 ---
 
