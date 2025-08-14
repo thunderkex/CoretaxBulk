@@ -1,6 +1,19 @@
 # CoretaxBulk Browser Extension
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/thunderkex/CoretaxBulk)](https://github.com/thunderkex/CoretaxBulk/releases/latest)
+[![GitHub all releases](https://img.shields.io/github/downloads/thunderkex/CoretaxBulk/total)](https://github.com/thunderkex/CoretaxBulk/releases)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-blue?logo=google-chrome)](https://github.com/thunderkex/CoretaxBulk/releases/latest)
+[![Firefox Add-on](https://img.shields.io/badge/Firefox-Add--on-orange?logo=firefox)](https://github.com/thunderkex/CoretaxBulk/releases/latest)
+
 A browser extension for bulk operations on Coretax platform, available for both Chrome and Firefox browsers.
+
+## 📥 Download
+
+<div align="center">
+  <a href="https://github.com/thunderkex/CoretaxBulk/releases/latest">
+    <img src="https://img.shields.io/badge/Download%20Latest%20Release-4CAF50?style=for-the-badge&logo=download&logoColor=white" alt="Download Latest Release" width="300">
+  </a>
+</div>
 
 ## Features
 
