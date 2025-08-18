@@ -6,6 +6,7 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/thunderkex/CoretaxBulk?style=flat-square&logo=star&color=yellow)](https://github.com/thunderkex/CoretaxBulk/stargazers)
 [![Latest Release](https://img.shields.io/github/v/release/thunderkex/CoretaxBulk?style=flat-square&logo=github&color=blue)](https://github.com/thunderkex/CoretaxBulk/releases/latest)
+[![Total Downloads](https://img.shields.io/github/downloads/thunderkex/CoretaxBulk/total?style=flat-square&logo=download&color=green)](https://github.com/thunderkex/CoretaxBulk/releases)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://github.com/thunderkex/CoretaxBulk/blob/main/LICENSE)
 
 **[📥 Download for Chrome](https://github.com/thunderkex/CoretaxBulk/releases/latest)** • **[📥 Download for Firefox](https://github.com/thunderkex/CoretaxBulk/releases/latest)**
