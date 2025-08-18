@@ -34,14 +34,14 @@
 ## 📥 Installation
 
 ### Chrome
-1. Download `coretax-bulk-chrome.zip` from [releases](https://github.com/thunderkex/CoretaxBulk/releases)
+1. Download `CoreTax-Bulk-Download-Chrome-(version).zip` from [releases](https://github.com/thunderkex/CoretaxBulk/releases)
 2. Extract the ZIP file
 3. Open Chrome and go to `chrome://extensions/`
 4. Enable **Developer mode** (toggle in top right)
 5. Click **Load unpacked** and select the extracted folder
 
 ### Firefox  
-1. Download `coretax-bulk-firefox.zip` from [releases](https://github.com/thunderkex/CoretaxBulk/releases)
+1. Download `CoreTax-Bulk-Download-Chrome-(version).zip` from [releases](https://github.com/thunderkex/CoretaxBulk/releases)
 2. Extract the ZIP file
 3. Open Firefox and go to `about:debugging`
 4. Click **This Firefox** → **Load Temporary Add-on**
