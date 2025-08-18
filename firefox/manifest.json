@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "CoreTax Bulk Download",
+  "version": "2.1.0",
+  "description": "Browser extension for bulk downloading tax documents from CoreTax with filtering and history features.",
+  "permissions": [
+    "https://coretaxdjp.pajak.go.id/*",
+    "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax/*",
+    "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax",
+    "https://coretaxdjp.pajak.go.id/withholding-slips-portal/*",
+    "https://coretaxdjp.pajak.go.id/returnsheets-portal/*",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://coretaxdjp.pajak.go.id/*",
+        "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax/*",
+        "https://coretaxdjp.pajak.go.id/withholding-slips-portal/*",
+        "https://coretaxdjp.pajak.go.id/returnsheets-portal/*"
+      ],
+      "js": ["lang.js", "content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon.svg"
+  },
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "coretaxbulk@thunderkex.github.io",
+      "strict_min_version": "57.0"
+    }
+  }
+}
