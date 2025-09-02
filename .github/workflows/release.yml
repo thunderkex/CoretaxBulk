@@ -1,0 +1,104 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Generate version and release info
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            # For tag pushes, use the tag name
+            TAG="${{ github.ref_name }}"
+            VERSION=${TAG#v}
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "release_name=CoreTax Bulk Download v$VERSION" >> $GITHUB_OUTPUT
+          else
+            # Read current version from Chrome manifest
+            CURRENT_VERSION=$(grep '"version"' chrome/manifest.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+            echo "Current version: $CURRENT_VERSION"
+            
+            # Auto bump patch version
+            IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+            MAJOR=${VERSION_PARTS[0]}
+            MINOR=${VERSION_PARTS[1]}
+            PATCH=${VERSION_PARTS[2]}
+            PATCH=$((PATCH + 1))
+            
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            TAG="v$NEW_VERSION"
+            
+            echo "New version: $NEW_VERSION"
+            
+            # Update Chrome manifest
+            sed -i "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" chrome/manifest.json
+            
+            # Update Firefox manifest
+            sed -i "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" firefox/manifest.json
+            
+            # Commit changes
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add chrome/manifest.json firefox/manifest.json
+            git commit -m "Bump version to $NEW_VERSION" || exit 0
+            git tag $TAG
+            git push origin HEAD:${{ github.ref_name }}
+            git push origin $TAG
+            
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+            echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "release_name=CoreTax Bulk Download v$NEW_VERSION" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Chrome extension package
+        run: |
+          cd chrome
+          zip -r ../CoreTax-Bulk-Download-Chrome-v${{ steps.version.outputs.version }}.zip . -x "*.git*"
+      
+      - name: Create Firefox extension package
+        run: |
+          cd firefox
+          zip -r ../CoreTax-Bulk-Download-Firefox-v${{ steps.version.outputs.version }}.zip . -x "*.git*"
+      
+      - name: Create source code package
+        run: zip -r CoreTax-Bulk-Download-Source-v${{ steps.version.outputs.version }}.zip . -x "*.git*" ".github/*"
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            CoreTax-Bulk-Download-Chrome-v${{ steps.version.outputs.version }}.zip
+            CoreTax-Bulk-Download-Firefox-v${{ steps.version.outputs.version }}.zip
+            CoreTax-Bulk-Download-Source-v${{ steps.version.outputs.version }}.zip
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.release_name }}
+          body: |
+            ## 📦 CoreTax Bulk Download v${{ steps.version.outputs.version }}
+            
+            ### 📥 Downloads
+            - **Chrome Extension**: CoreTax-Bulk-Download-Chrome-v${{ steps.version.outputs.version }}.zip
+            - **Firefox Extension**: CoreTax-Bulk-Download-Firefox-v${{ steps.version.outputs.version }}.zip
+            - **Source Code**: CoreTax-Bulk-Download-Source-v${{ steps.version.outputs.version }}.zip
+            
+            ### 🛠️ Installation
+            1. Download the appropriate extension file for your browser
+            2. Extract the zip file
+            3. Load the extension in developer mode
+            4. Navigate to CoreTax and start bulk downloading!
+            
+            ---
+            **Full Changelog**: https://github.com/${{ github.repository }}/compare/v${{ steps.version.outputs.previous_version }}...${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
