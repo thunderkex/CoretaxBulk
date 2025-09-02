@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "CoreTax Bulk Download",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Browser extension for bulk downloading tax documents from CoreTax with filtering and history features.",
   "permissions": [
     "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax/*",
