@@ -68,6 +68,13 @@ function setupEventListeners() {
     document.getElementById('parallelDownloads').addEventListener('change', validateInput);
     document.getElementById('downloadDelay').addEventListener('change', validateInput);
     document.getElementById('languageSelect').addEventListener('change', changeLanguage);
+    document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory);
+    document.getElementById('importHistoryBtn').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            importHistory(file);
+        }
+    });
 }
 
 function updateUI() {
@@ -162,4 +169,34 @@ function updateLanguage() {
             option.textContent = `${baseText} (${translations[labelId]})`;
         }
     });
+}
+
+// Added export and import functionality for download history
+function exportHistory() {
+    chrome.storage.local.get(['downloadHistory'], (result) => {
+        const history = result.downloadHistory || [];
+        const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'download_history.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+}
+
+function importHistory(file) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            const history = JSON.parse(event.target.result);
+            chrome.storage.local.set({ downloadHistory: history }, () => {
+                alert('History imported successfully!');
+                loadHistory();
+            });
+        } catch (error) {
+            alert('Failed to import history. Invalid file format.');
+        }
+    };
+    reader.readAsText(file);
 }

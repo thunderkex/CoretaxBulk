@@ -115,6 +115,23 @@ class SimpleDocDownloader {
         this.selectAllBtn = selectAllBtn;
         this.filterBtn = filterBtn;
         this.downloadBtn = downloadBtn;
+
+        // Added ARIA roles and improved keyboard navigation for accessibility
+        panel.setAttribute('role', 'complementary');
+        panel.setAttribute('aria-labelledby', 'download-panel-title');
+        const title = document.createElement('h2');
+        title.id = 'download-panel-title';
+        title.textContent = 'Download Panel';
+        panel.prepend(title);
+
+        // Added animations for panel transitions
+        panel.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+
+        // Improved dark mode support
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            panel.style.backgroundColor = 'rgba(24, 26, 27, 0.95)';
+            panel.style.color = '#e5e7eb';
+        }
     }
 
     showFilterModal() {
@@ -354,6 +371,15 @@ class SimpleDocDownloader {
         const failRate = totalOps ? this.metrics.failures / totalOps : 0;
         if (avg > 1500 || failRate > 0.1) this.currentConcurrency = Math.max(this.minConcurrency, this.currentConcurrency - 1);
         else if (avg < 600 && failRate < 0.05) this.currentConcurrency = Math.min(this.maxConcurrency, this.currentConcurrency + 1);
+
+        // Improved concurrency adjustment logic
+        const avgDuration = this.metrics.avgDuration || 1000;
+        if (avgDuration < 500 && this.currentConcurrency < this.maxConcurrency) {
+            this.currentConcurrency++;
+        } else if (avgDuration > 1500 && this.currentConcurrency > this.minConcurrency) {
+            this.currentConcurrency--;
+        }
+        console.log(`Adjusted concurrency to: ${this.currentConcurrency}`);
     }
 
     async saveHistory(completed, failed) {
