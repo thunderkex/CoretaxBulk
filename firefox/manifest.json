@@ -4,7 +4,6 @@
   "version": "2.1.1",
   "description": "Browser extension for bulk downloading tax documents from CoreTax with filtering and history features.",
   "permissions": [
-    "https://coretaxdjp.pajak.go.id/*",
     "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax/*",
     "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax",
     "https://coretaxdjp.pajak.go.id/withholding-slips-portal/*",
@@ -14,7 +13,6 @@
   "content_scripts": [
     {
       "matches": [
-        "https://coretaxdjp.pajak.go.id/*",
         "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax/*",
         "https://coretaxdjp.pajak.go.id/withholding-slips-portal/*",
         "https://coretaxdjp.pajak.go.id/returnsheets-portal/*"
