@@ -1,38 +1,50 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "CoreTax Bulk Download",
   "version": "2.1.2",
   "description": "Browser extension for bulk downloading tax documents from CoreTax with filtering and history features.",
-  "permissions": [
+  "author": "thunderkex",
+  "homepage_url": "https://github.com/thunderkex/CoretaxBulk",
+  "icons": {
+    "16": "icons/icon.svg",
+    "32": "icons/icon.svg",
+    "48": "icons/icon.svg",
+    "128": "icons/icon.svg"
+  },
+  "host_permissions": [
     "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax/*",
-    "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax",
+    "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax/*",
     "https://coretaxdjp.pajak.go.id/withholding-slips-portal/*",
-    "https://coretaxdjp.pajak.go.id/returnsheets-portal/*",
+    "https://coretaxdjp.pajak.go.id/returnsheets-portal/*"
+  ],
+  "permissions": [
     "storage"
   ],
   "content_scripts": [
     {
       "matches": [
+        "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/output-tax/*",
         "https://coretaxdjp.pajak.go.id/e-invoice-portal/id-ID/input-tax/*",
         "https://coretaxdjp.pajak.go.id/withholding-slips-portal/*",
         "https://coretaxdjp.pajak.go.id/returnsheets-portal/*"
       ],
       "js": ["lang.js", "content.js"],
-      "css": ["styles.css"]
+      "css": ["styles.css"],
+      "run_at": "document_end",
+      "all_frames": false
     }
   ],
-  "browser_action": {
+  "action": {
     "default_popup": "popup.html",
-    "default_icon": "icons/icon.svg"
+    "default_icon": {
+      "16": "icons/icon.svg",
+      "32": "icons/icon.svg",
+      "48": "icons/icon.svg"
+    },
+    "default_title": "CoreTax Bulk Download"
   },
-  "icons": {
-    "48": "icons/icon.svg",
-    "96": "icons/icon.svg"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'"
   },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "coretaxbulk@thunderkex.github.io",
-      "strict_min_version": "57.0"
-    }
-  }
+  "minimum_chrome_version": "88"
 }

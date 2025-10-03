@@ -23,7 +23,14 @@ const POPUP_TRANSLATIONS = {
         warning: '⚠️ Peringatan: Otomatisasi ini mungkin melanggar kebijakan Coretax. Gunakan dengan risiko Anda sendiri.',
         safest: 'Paling Aman',
         recommended: 'Disarankan',
-        fastest: 'Paling Cepat'
+        fastest: 'Paling Cepat',
+        keyboardShortcuts: 'Pintasan Keyboard',
+        shortcutDownload: 'Ctrl+D: Mulai Unduh',
+        shortcutSelectAll: 'Ctrl+Shift+A: Pilih Semua',
+        shortcutFilter: 'Ctrl+Shift+F: Buka Filter',
+        shortcutMinimize: 'Ctrl+Shift+M: Minimalkan Panel',
+        shortcutExportErrors: 'Ctrl+Shift+E: Ekspor Kesalahan',
+        shortcutCloseModal: 'Esc: Tutup Modal'
     },
     en: {
         extensionTitle: 'coretaxbulk download',
@@ -38,7 +45,14 @@ const POPUP_TRANSLATIONS = {
         warning: '⚠️ Warning: This automation may violate Coretax policies. Use at your own risk.',
         safest: 'Safest',
         recommended: 'Recommended',
-        fastest: 'Fastest'
+        fastest: 'Fastest',
+        keyboardShortcuts: 'Keyboard Shortcuts',
+        shortcutDownload: 'Ctrl+D: Start Download',
+        shortcutSelectAll: 'Ctrl+Shift+A: Select All',
+        shortcutFilter: 'Ctrl+Shift+F: Open Filter',
+        shortcutMinimize: 'Ctrl+Shift+M: Minimize Panel',
+        shortcutExportErrors: 'Ctrl+Shift+E: Export Errors',
+        shortcutCloseModal: 'Esc: Close Modal'
     }
 };
 
@@ -75,6 +89,12 @@ function setupEventListeners() {
             importHistory(file);
         }
     });
+    
+    // Add help button listener
+    const helpBtn = document.getElementById('helpBtn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', showKeyboardShortcuts);
+    }
 }
 
 function updateUI() {
@@ -89,14 +109,16 @@ function validateInput(event) {
     const value = parseInt(input.value);
     
     if (input.id === 'parallelDownloads') {
-        if (value < 1 || value > 10) {
+        if (value < 1 || value > 10 || isNaN(value)) {
             input.setCustomValidity('Value must be between 1 and 10');
+            input.reportValidity();
         } else {
             input.setCustomValidity('');
         }
     } else if (input.id === 'downloadDelay') {
-        if (value < 100 || value > 10000) {
+        if (value < 100 || value > 10000 || isNaN(value)) {
             input.setCustomValidity('Value must be between 100 and 10000 ms');
+            input.reportValidity();
         } else {
             input.setCustomValidity('');
         }
@@ -104,8 +126,19 @@ function validateInput(event) {
 }
 
 function saveSettings() {
-    const parallelDownloads = parseInt(document.getElementById('parallelDownloads').value);
-    const downloadDelay = parseInt(document.getElementById('downloadDelay').value);
+    const parallelInput = document.getElementById('parallelDownloads');
+    const delayInput = document.getElementById('downloadDelay');
+    
+    // Validate before saving
+    parallelInput.dispatchEvent(new Event('change'));
+    delayInput.dispatchEvent(new Event('change'));
+    
+    if (!parallelInput.checkValidity() || !delayInput.checkValidity()) {
+        return;
+    }
+    
+    const parallelDownloads = parseInt(parallelInput.value);
+    const downloadDelay = parseInt(delayInput.value);
     const selectedLanguage = document.getElementById('languageSelect').value;
     
     chrome.storage.local.set({ 
@@ -114,8 +147,44 @@ function saveSettings() {
         selectedLanguage 
     }, () => {
         const message = POPUP_TRANSLATIONS[selectedLanguage].settingsSaved;
-        alert(message);
+        showNotification(message, 'success');
     });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+        color: white;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 2000);
+}
+
+function showKeyboardShortcuts() {
+    const lang = state.settings.selectedLanguage;
+    const t = POPUP_TRANSLATIONS[lang];
+    
+    alert(`${t.keyboardShortcuts || 'Keyboard Shortcuts'}:\n\n` +
+          `${t.shortcutDownload || 'Ctrl+D: Start Download'}\n` +
+          `${t.shortcutSelectAll || 'Ctrl+Shift+A: Select All'}\n` +
+          `${t.shortcutFilter || 'Ctrl+Shift+F: Open Filter'}\n` +
+          `${t.shortcutMinimize || 'Ctrl+Shift+M: Minimize Panel'}\n` +
+          `${t.shortcutExportErrors || 'Ctrl+Shift+E: Export Errors'}\n` +
+          `${t.shortcutCloseModal || 'Esc: Close Modal'}`);
 }
 
 function loadHistory() {
@@ -123,9 +192,21 @@ function loadHistory() {
         const history = result.downloadHistory || [];
         const historyList = document.getElementById('historyList');
         historyList.innerHTML = '';
+        
+        if (history.length === 0) {
+            const p = document.createElement('p');
+            p.textContent = 'No history yet';
+            p.style.color = '#9ca3af';
+            historyList.appendChild(p);
+            return;
+        }
+        
         history.forEach((entry, index) => {
             const p = document.createElement('p');
-            p.textContent = `${new Date(entry.timestamp).toLocaleString()}: Berhasil ${entry.success}, Gagal ${entry.failed}`;
+            const date = new Date(entry.timestamp).toLocaleString();
+            const duration = entry.duration ? ` (${entry.duration}ms)` : '';
+            p.textContent = `${date}: ✓${entry.success} ✗${entry.failed}${duration}`;
+            p.style.fontSize = '12px';
             historyList.appendChild(p);
         });
     });
@@ -186,16 +267,34 @@ function exportHistory() {
 }
 
 function importHistory(file) {
+    if (file.size > 1024 * 1024) { // 1MB limit
+        alert('File too large. Maximum 1MB allowed.');
+        return;
+    }
+    
     const reader = new FileReader();
     reader.onload = (event) => {
         try {
             const history = JSON.parse(event.target.result);
+            
+            // Validate history structure
+            if (!Array.isArray(history)) {
+                throw new Error('Invalid format: expected array');
+            }
+            
+            history.forEach(entry => {
+                if (!entry.timestamp || !entry.success === undefined) {
+                    throw new Error('Invalid entry structure');
+                }
+            });
+            
             chrome.storage.local.set({ downloadHistory: history }, () => {
-                alert('History imported successfully!');
+                const lang = state.settings.selectedLanguage;
+                showNotification('History imported successfully!', 'success');
                 loadHistory();
             });
         } catch (error) {
-            alert('Failed to import history. Invalid file format.');
+            alert('Failed to import history. Invalid file format: ' + error.message);
         }
     };
     reader.readAsText(file);

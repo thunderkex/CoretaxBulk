@@ -61,7 +61,20 @@ const LANGUAGES = {
             
             // Language Switch
             language: 'Bahasa',
-            switchLanguage: 'Ganti Bahasa'
+            switchLanguage: 'Ganti Bahasa',
+            
+            // Additional Keys
+            duration: 'Durasi',
+            exportErrors: 'Ekspor Error',
+            avgTime: 'Waktu Rata-rata',
+            performance: 'Performa',
+            keyboardShortcuts: 'Pintasan Keyboard',
+            shortcutDownload: 'Ctrl+D: Mulai Unduh',
+            shortcutSelectAll: 'Ctrl+Shift+A: Pilih Semua',
+            shortcutFilter: 'Ctrl+Shift+F: Buka Filter',
+            shortcutMinimize: 'Ctrl+Shift+M: Minimalkan Panel',
+            shortcutExportErrors: 'Ctrl+Shift+E: Ekspor Error',
+            shortcutCloseModal: 'Esc: Tutup Modal'
         }
     },
     en: {
@@ -125,7 +138,20 @@ const LANGUAGES = {
             
             // Language Switch
             language: 'Language',
-            switchLanguage: 'Switch Language'
+            switchLanguage: 'Switch Language',
+            
+            // Additional Keys
+            duration: 'Duration',
+            exportErrors: 'Export Errors',
+            avgTime: 'Average Time',
+            performance: 'Performance',
+            keyboardShortcuts: 'Keyboard Shortcuts',
+            shortcutDownload: 'Ctrl+D: Start Download',
+            shortcutSelectAll: 'Ctrl+Shift+A: Select All',
+            shortcutFilter: 'Ctrl+Shift+F: Open Filter',
+            shortcutMinimize: 'Ctrl+Shift+M: Minimize Panel',
+            shortcutExportErrors: 'Ctrl+Shift+E: Export Errors',
+            shortcutCloseModal: 'Esc: Close Modal'
         }
     }
 };

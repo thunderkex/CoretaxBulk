@@ -1,5 +1,6 @@
 /**
  * Created by thunderkex
+ * CoretaxBulk - Intelligent bulk document downloader
  */
 
 class SimpleDocDownloader {
@@ -15,13 +16,17 @@ class SimpleDocDownloader {
         this.isMinimized = false;
         this.setupKeyboardShortcuts();
         this.documentTypes = new Set();
-        // Adaptive concurrency and metrics
         this.minConcurrency = 1;
         this.maxConcurrency = 10;
-        this.currentConcurrency = 5; // will be updated after settings load
+        this.currentConcurrency = 5;
         this.metrics = { durations: [], avgDuration: 0, successes: 0, failures: 0 };
         this._attempts = new WeakMap();
         this._rowCache = null;
+        // Add error tracking
+        this.errorLog = [];
+        this.maxErrorLogSize = 50;
+        // Add performance markers
+        this.performanceMarkers = new Map();
     }
 
     async initializeAsync() {
@@ -265,6 +270,7 @@ class SimpleDocDownloader {
     async processDownloadQueue() {
         if (this.processingQueue) return;
         this.processingQueue = true;
+        this.markPerformance('download-start');
 
         const total = this.downloadQueue.length;
         let completed = 0;
@@ -272,9 +278,8 @@ class SimpleDocDownloader {
         this.metrics = { durations: [], avgDuration: 0, successes: 0, failures: 0 };
         const queue = [...this.downloadQueue];
         this.downloadQueue = [];
-        const attemptsMap = this._attempts; // WeakMap
+        const attemptsMap = this._attempts;
 
-        const startTime = performance.now();
         const runNext = async () => {
             if (!queue.length) return;
             const row = queue.shift();
@@ -297,6 +302,7 @@ class SimpleDocDownloader {
             } catch (e) {
                 const dur = performance.now() - start;
                 this.updateMetrics(dur, false);
+                this.logError('Download queue error', { error: e.message });
                 const prev = attemptsMap.get(row) || 0;
                 if (prev + 1 < this.retryAttempts) {
                     attemptsMap.set(row, prev + 1);
@@ -307,48 +313,103 @@ class SimpleDocDownloader {
             }
             this.updateProgress(completed + failed, total);
             this.adjustConcurrency();
-
-            // Pace starting next job
             if (queue.length) await this.sleep(this.downloadDelay);
             if (completed + failed < total) await runNext();
         };
 
-        // Prime workers up to current concurrency
         const starters = Math.min(this.currentConcurrency, total);
         const workers = [];
         for (let i = 0; i < starters; i++) workers.push(runNext());
         await Promise.all(workers);
 
         this.processingQueue = false;
-        await this.saveHistory(completed, failed);
-        this.showSummary(completed, failed, total);
-        const totalTime = Math.round(performance.now() - startTime);
-        if (this.statusEl) this.statusEl.textContent = `Completed ${completed}/${total} in ${totalTime} ms`;
+        this.markPerformance('download-end');
+        const totalTime = this.measurePerformance('download-start', 'download-end');
+        
+        await this.saveHistory(completed, failed, totalTime);
+        this.showSummary(completed, failed, total, totalTime);
+        if (this.statusEl) {
+            this.statusEl.textContent = `Completed ${completed}/${total} in ${totalTime}ms`;
+        }
     }
 
+    // Add performance tracking
+    markPerformance(label) {
+        this.performanceMarkers.set(label, performance.now());
+    }
+
+    measurePerformance(startLabel, endLabel) {
+        const start = this.performanceMarkers.get(startLabel);
+        const end = this.performanceMarkers.get(endLabel);
+        if (start && end) {
+            return Math.round(end - start);
+        }
+        return 0;
+    }
+
+    // Enhanced error logging with context
+    logError(message, context = {}) {
+        const errorEntry = {
+            timestamp: Date.now(),
+            message,
+            context: {
+                ...context,
+                url: window.location.href,
+                concurrency: this.currentConcurrency,
+                queueLength: this.downloadQueue.length
+            },
+            userAgent: navigator.userAgent
+        };
+        this.errorLog.push(errorEntry);
+        if (this.errorLog.length > this.maxErrorLogSize) {
+            this.errorLog.shift();
+        }
+        console.error('[CoretaxBulk]', message, context);
+    }
+
+    // Enhanced download with validation
     async downloadDocument(row, attemptCount = 0) {
         try {
             const downloadBtn = this.findDownloadButton(row);
             if (!downloadBtn) {
-                this.showError('Download button not found');
+                this.logError('Download button not found', { attemptCount, row: row.textContent.substring(0, 50) });
+                this.showError(this.langManager.getText('downloadButtonNotFound'));
                 return false;
             }
 
             const cacheKey = this.generateCacheKey(row);
-            if (this.documentCache.has(cacheKey)) {
-                // Already processed this row in this session
-                return true;
+            if (this.documentCache.has(cacheKey)) return true;
+
+            // Validate button is clickable
+            if (downloadBtn.disabled || downloadBtn.getAttribute('aria-disabled') === 'true') {
+                throw new Error('Download button is disabled');
             }
 
-            downloadBtn.click();
+            const clickEvent = new MouseEvent('click', { 
+                bubbles: true, 
+                cancelable: true,
+                view: window 
+            });
+            const dispatched = downloadBtn.dispatchEvent(clickEvent);
+            
+            if (!dispatched) {
+                throw new Error('Click event was prevented');
+            }
+
             this.documentCache.add(cacheKey);
             return true;
         } catch (error) {
+            this.logError('Download document error', { 
+                error: error.message, 
+                attemptCount,
+                stack: error.stack 
+            });
+            
             if (attemptCount < this.retryAttempts) {
                 await this.sleep(400 * (attemptCount + 1));
                 return this.downloadDocument(row, attemptCount + 1);
             }
-            this.showError('Error downloading document');
+            this.showError(this.langManager.getText('errorDownloadingDocument'));
             return false;
         }
     }
@@ -408,11 +469,13 @@ class SimpleDocDownloader {
         console.log(`Adjusted concurrency to: ${this.currentConcurrency}`);
     }
 
-    async saveHistory(completed, failed) {
+    async saveHistory(completed, failed, duration = 0) {
         const historyEntry = {
             timestamp: Date.now(),
             success: completed,
-            failed: failed
+            failed: failed,
+            duration: duration,
+            concurrency: this.currentConcurrency
         };
 
         const { downloadHistory = [] } = await chrome.storage.local.get(['downloadHistory']);
@@ -421,7 +484,8 @@ class SimpleDocDownloader {
         await chrome.storage.local.set({ downloadHistory });
     }
 
-    showSummary(completed, failed, total) {
+    showSummary(completed, failed, total, duration = 0) {
+        const avgTime = duration > 0 ? Math.round(duration / total) : 0;
         const modal = document.createElement('div');
         modal.className = 'summary-modal';
         modal.innerHTML = `
@@ -430,10 +494,38 @@ class SimpleDocDownloader {
                 <p>${this.langManager.getText('successful')}: ${completed}</p>
                 <p>${this.langManager.getText('failed')}: ${failed}</p>
                 <p>${this.langManager.getText('total')}: ${total}</p>
-                <button onclick="this.closest('.summary-modal').remove()">${this.langManager.getText('close')}</button>
+                <p>⏱️ ${this.langManager.getText('duration') || 'Duration'}: ${duration}ms (${avgTime}ms avg)</p>
+                <div class="modal-buttons">
+                    <button onclick="this.closest('.summary-modal').remove()">${this.langManager.getText('close')}</button>
+                    ${this.errorLog.length > 0 ? `<button onclick="document.dispatchEvent(new CustomEvent('exportErrors'))">${this.langManager.getText('exportErrors') || 'Export Errors'}</button>` : ''}
+                </div>
             </div>
         `;
         document.body.appendChild(modal);
+        
+        // Add export errors handler
+        document.addEventListener('exportErrors', () => {
+            this.exportErrorLog();
+            modal.remove();
+        }, { once: true });
+    }
+
+    async exportErrorLog() {
+        try {
+            const blob = new Blob([JSON.stringify(this.errorLog, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `coretaxbulk-errors-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            this.logError('Failed to export error log', { error: error.message });
+        }
     }
 
     toggleMinimize() {
@@ -468,24 +560,48 @@ class SimpleDocDownloader {
         return true;
     }
 
+    // Enhanced keyboard shortcuts with better UX
     setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
+            // Prevent shortcuts when user is typing
+            if (e.target.matches('input, textarea, select, [contenteditable="true"]')) return;
+            
             if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
+                switch(e.key.toLowerCase()) {
                     case 'd':
                         e.preventDefault();
                         this.startDownload();
                         break;
                     case 'a':
-                        if (e.shiftKey) { e.preventDefault(); this.toggleSelectAll(); }
+                        if (e.shiftKey) { 
+                            e.preventDefault(); 
+                            this.toggleSelectAll(); 
+                        }
                         break;
                     case 'f':
-                        if (e.shiftKey) { e.preventDefault(); this.showFilterModal(); }
+                        if (e.shiftKey) { 
+                            e.preventDefault(); 
+                            this.showFilterModal(); 
+                        }
                         break;
                     case 'm':
-                        if (e.shiftKey) { e.preventDefault(); this.toggleMinimize(); }
+                        if (e.shiftKey) { 
+                            e.preventDefault(); 
+                            this.toggleMinimize(); 
+                        }
+                        break;
+                    case 'e':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.exportErrorLog();
+                        }
                         break;
                 }
+            }
+            // Close modals with Escape
+            if (e.key === 'Escape') {
+                const modal = document.querySelector('.filter-modal, .summary-modal');
+                if (modal) modal.remove();
             }
         });
     }

@@ -63,6 +63,10 @@
 - `Ctrl+Shift+A` - Select/deselect all
 - `Ctrl+Shift+F` - Open filter modal
 - `Ctrl+Shift+M` - Minimize/maximize panel
+- `Ctrl+Shift+E` - Export error log
+- `Esc` - Close modal dialogs
+
+**Note**: Shortcuts are disabled when typing in input fields.
 
 ## ⚙️ Configuration
 
@@ -140,16 +144,32 @@ git push origin v1.6.0
 - Ensure you're on a Coretax document list page
 - Check if developer mode is enabled (Chrome)
 - Try refreshing the page
+- Check browser console for errors (F12)
 
 **Downloads not working?**
 - Check browser download settings
 - Ensure pop-ups are allowed for Coretax domain
-- Try reducing parallel downloads in settings
+- Try reducing parallel downloads to 1-2 in settings
+- Export error log (Ctrl+Shift+E) for debugging
 
 **Performance issues?**
 - Reduce parallel downloads to 1-2
 - Increase download delay to 1000ms+
 - Clear browser cache and restart
+- Check system resources (CPU/Memory)
+- Export error log to identify bottlenecks
+
+**Filter not working?**
+- Clear cache and refresh the page
+- Ensure table is fully loaded before filtering
+- Try using more specific search terms
+- Check browser console for JavaScript errors
+
+**Keyboard shortcuts not working?**
+- Ensure you're not typing in an input field
+- Try clicking on the page background first
+- Check if another extension is conflicting
+- Verify shortcuts in the help dialog (❓ button)
 
 ---
 

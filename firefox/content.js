@@ -9,7 +9,7 @@ class SimpleDocDownloader {
         this.filterDebounceTimer = null;
         this.downloadStats = { total: 0, completed: 0, failed: 0 };
         this.isMinimized = false;
-        this.setupKeyboardShortcuts();
+        this.setupKeyboardShortcuts(); // Add this line
         this.documentTypes = new Set();
         // Adaptive concurrency
         this.minConcurrency = 1;
@@ -18,6 +18,9 @@ class SimpleDocDownloader {
         this.metrics = { durations: [], avgDuration: 0, successes: 0, failures: 0 };
         this._attempts = new WeakMap();
         this._rowCache = null;
+        // Add error tracking
+        this.errorLog = [];
+        this.maxErrorLogSize = 50;
     }
 
     async initializeAsync() {
@@ -298,24 +301,81 @@ class SimpleDocDownloader {
         return false;
     }
 
+    // Add missing keyboard shortcuts method
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Prevent shortcuts when user is typing in input fields
+            if (e.target.matches('input, textarea, select, [contenteditable="true"]')) return;
+            
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 'd':
+                        e.preventDefault();
+                        this.startDownload();
+                        break;
+                    case 'a':
+                        if (e.shiftKey) { 
+                            e.preventDefault(); 
+                            this.toggleSelectAll(); 
+                        }
+                        break;
+                    case 'f':
+                        if (e.shiftKey) { 
+                            e.preventDefault(); 
+                            this.showFilterModal(); 
+                        }
+                        break;
+                    case 'm':
+                        if (e.shiftKey) { 
+                            e.preventDefault(); 
+                            this.toggleMinimize(); 
+                        }
+                        break;
+                    case 'e':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            this.exportErrorLog();
+                        }
+                        break;
+                }
+            }
+            // Add Escape key to close modals
+            if (e.key === 'Escape') {
+                const modal = document.querySelector('.filter-modal, .summary-modal');
+                if (modal) modal.remove();
+            }
+        });
+    }
+
     async downloadDocument(row, attemptCount = 0) {
         try {
             const downloadBtn = this.findDownloadButton(row);
             if (!downloadBtn) {
-                this.showError('Download button not found');
+                this.logError('Download button not found', { attemptCount });
+                this.showError(this.langManager.getText('downloadButtonNotFound'));
                 return false;
             }
             const cacheKey = this.generateCacheKey(row);
             if (this.documentCache.has(cacheKey)) return true;
-            downloadBtn.click();
+            
+            // Add click validation
+            const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+            const dispatched = downloadBtn.dispatchEvent(clickEvent);
+            
+            if (!dispatched) {
+                throw new Error('Click event was prevented');
+            }
+            
             this.documentCache.add(cacheKey);
             return true;
         } catch (error) {
+            this.logError('Download error', { error: error.message, attemptCount });
+            
             if (attemptCount < this.retryAttempts) {
                 await this.sleep(400 * (attemptCount + 1));
                 return this.downloadDocument(row, attemptCount + 1);
             }
-            this.showError('Error downloading document');
+            this.showError(this.langManager.getText('errorDownloadingDocument'));
             return false;
         }
     }
@@ -456,6 +516,38 @@ class SimpleDocDownloader {
                 }
             });
         });
+    }
+
+    // Improve error logging
+    logError(message, context = {}) {
+        const errorEntry = {
+            timestamp: Date.now(),
+            message,
+            context,
+            userAgent: navigator.userAgent
+        };
+        this.errorLog.push(errorEntry);
+        if (this.errorLog.length > this.maxErrorLogSize) {
+            this.errorLog.shift();
+        }
+        console.error('[CoretaxBulk]', message, context);
+    }
+
+    // Add export error log functionality
+    async exportErrorLog() {
+        try {
+            const blob = new Blob([JSON.stringify(this.errorLog, null, 2)], { 
+                type: 'application/json' 
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `coretaxbulk-errors-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            this.logError('Failed to export error log', { error: error.message });
+        }
     }
 }
 
