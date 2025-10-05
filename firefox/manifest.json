@@ -5,6 +5,12 @@
   "description": "Browser extension for bulk downloading tax documents from CoreTax with filtering and history features.",
   "author": "thunderkex",
   "homepage_url": "https://github.com/thunderkex/CoretaxBulk",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "coretaxbulk@thunderkex.github.io",
+      "strict_min_version": "109.0"
+    }
+  },
   "icons": {
     "16": "icons/icon.svg",
     "32": "icons/icon.svg",
