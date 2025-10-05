@@ -68,7 +68,7 @@ class SimpleDocDownloader {
 
         // Minimize button
         const minimizeBtn = document.createElement('button');
-        minimizeBtn.innerHTML = '&#x2796;';
+        minimizeBtn.textContent = '−';
         minimizeBtn.className = 'minimize-btn';
         minimizeBtn.setAttribute('aria-label', this.langManager.getText('minimizePanel'));
         minimizeBtn.addEventListener('click', () => this.toggleMinimize());
@@ -143,45 +143,65 @@ class SimpleDocDownloader {
         
         // Detect document types for filter options
         this.detectDocumentTypes();
-        const typeOptions = Array.from(this.documentTypes).map(type => 
-            `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`
-        ).join('');
         
-        modal.innerHTML = `
-            <div class="filter-modal-content">
-                <h3>${this.langManager.getText('filterDocuments')}</h3>
-                <input type="text" id="filterText" placeholder="${this.langManager.getText('enterSearchText')}">
-                <select id="filterType">
-                    <option value="">${this.langManager.getText('allTypes')}</option>
-                    ${typeOptions}
-                </select>
-                <div class="modal-buttons">
-                    <button onclick="document.querySelector('.filter-modal').remove()">${this.langManager.getText('close')}</button>
-                    <button onclick="document.dispatchEvent(new CustomEvent('applyFilter'))">${this.langManager.getText('apply')}</button>
-                    <button onclick="document.dispatchEvent(new CustomEvent('clearFilter'))">${this.langManager.getText('clear')}</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        // Add event listeners
-        const applyHandler = () => {
-            const filterText = document.getElementById('filterText').value.toLowerCase();
-            const filterType = document.getElementById('filterType').value;
+        const modalContent = document.createElement('div');
+        modalContent.className = 'filter-modal-content';
+        
+        const title = document.createElement('h3');
+        title.textContent = this.langManager.getText('filterDocuments');
+        
+        const filterInput = document.createElement('input');
+        filterInput.type = 'text';
+        filterInput.id = 'filterText';
+        filterInput.placeholder = this.langManager.getText('enterSearchText');
+        
+        const filterSelect = document.createElement('select');
+        filterSelect.id = 'filterType';
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = this.langManager.getText('allTypes');
+        filterSelect.appendChild(defaultOption);
+        
+        // Add type options securely
+        Array.from(this.documentTypes).forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            filterSelect.appendChild(option);
+        });
+        
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'modal-buttons';
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = this.langManager.getText('close');
+        closeBtn.addEventListener('click', () => modal.remove());
+        
+        const applyBtn = document.createElement('button');
+        applyBtn.textContent = this.langManager.getText('apply');
+        applyBtn.addEventListener('click', () => {
+            const filterText = filterInput.value.toLowerCase();
+            const filterType = filterSelect.value;
             this.filterDocuments(filterText, filterType);
             modal.remove();
-        };
-
-        const clearHandler = () => {
+        });
+        
+        const clearBtn = document.createElement('button');
+        clearBtn.textContent = this.langManager.getText('clear');
+        clearBtn.addEventListener('click', () => {
             this.clearFilters();
             modal.remove();
-        };
-
-        document.addEventListener('applyFilter', applyHandler, { once: true });
-        document.addEventListener('clearFilter', clearHandler, { once: true });
+        });
+        
+        buttonsDiv.append(closeBtn, applyBtn, clearBtn);
+        modalContent.append(title, filterInput, filterSelect, buttonsDiv);
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
 
         // Auto-focus the input
-        setTimeout(() => document.getElementById('filterText').focus(), 100);
+        setTimeout(() => filterInput.focus(), 100);
     }
 
     filterDocuments(text, type = '') {
@@ -453,15 +473,28 @@ class SimpleDocDownloader {
     showSummary(completed, failed, total) {
         const modal = document.createElement('div');
         modal.className = 'summary-modal';
-        modal.innerHTML = `
-            <div class="summary-modal-content">
-                <h3>${this.langManager.getText('downloadSummary')}</h3>
-                <p>${this.langManager.getText('successful')}: ${completed}</p>
-                <p>${this.langManager.getText('failed')}: ${failed}</p>
-                <p>${this.langManager.getText('total')}: ${total}</p>
-                <button onclick="this.closest('.summary-modal').remove()">${this.langManager.getText('close')}</button>
-            </div>
-        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.className = 'summary-modal-content';
+        
+        const title = document.createElement('h3');
+        title.textContent = this.langManager.getText('downloadSummary');
+        
+        const successPara = document.createElement('p');
+        successPara.textContent = `${this.langManager.getText('successful')}: ${completed}`;
+        
+        const failedPara = document.createElement('p');
+        failedPara.textContent = `${this.langManager.getText('failed')}: ${failed}`;
+        
+        const totalPara = document.createElement('p');
+        totalPara.textContent = `${this.langManager.getText('total')}: ${total}`;
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = this.langManager.getText('close');
+        closeBtn.addEventListener('click', () => modal.remove());
+        
+        modalContent.append(title, successPara, failedPara, totalPara, closeBtn);
+        modal.appendChild(modalContent);
         document.body.appendChild(modal);
     }
 
@@ -469,7 +502,7 @@ class SimpleDocDownloader {
         const panel = document.querySelector('.download-panel');
         panel.classList.toggle('minimized');
         const minimizeBtn = panel.querySelector('.minimize-btn');
-        minimizeBtn.innerHTML = panel.classList.contains('minimized') ? '&#x2795;' : '&#x2796;';
+        minimizeBtn.textContent = panel.classList.contains('minimized') ? '+' : '−';
     }
 
     // Fungsi buat jeda
